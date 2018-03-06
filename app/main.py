@@ -5,6 +5,8 @@ import heapq
 import copy
 import random
 
+taunt = ""
+
 @bottle.route('/static/<path:path>')
 def static(path):
     return bottle.static_file(path, root='static/')
@@ -15,13 +17,13 @@ def start():
     data = bottle.request.json
     game_id = data['game_id']
 
-    head_url = 'https://img0.etsystatic.com/103/0/11964913/il_340x270.892126004_kfiw.jpg'
+    head_url = 'https://i.ytimg.com/vi/6l2uKRLmIdQ/hqdefault.jpg'
 
     return {
-        'color': '#002800',
-        'taunt': 'I am Groot!',
+        'color': '#f4d7f3',
+        'taunt': 'I am Baby Snakes, I am the world.',
         'head_url': head_url,
-        'name': 'Groot',
+        'name': 'BabySnakes',
         'head_type' : 'shades',
         'tail_type' : 'round-bum'
     }
@@ -33,38 +35,38 @@ def move():
 
     move = get_move(data)
 
-    taunt = 'I am Gro'
-    for x in range(data['turn'] % 8):
-        taunt += 'o'
-    taunt += 'ot!'
+    
     return {
-        'move': move
+        'move': move,
+        'taunt': taunt
     }
 
 
 def get_move(data):
-    groot = get_groot(data)
+    groot = get_me(data)
     moves = get_possible_moves_from_flood(data)
 
     #Here would be a good place to use conditionals for our move behaviour
     #Plot out new states
 
     #print(str(confidence(data)) + "\n")
-    tastyDistance = min(data["width"]/4, data["height"]/4)
+    tastyDistance = min(data["width"]/3, data["height"]/3)
     if tastyDistance < 2:
         tastyDistance = 2
 
     # print tastyDistance
     if groot["health"] < 60 or food_eval(map, data["food"]["data"], groot["body"]["data"][0])[0] < tastyDistance:
+        taunt = "The wine is flowing!"
         return hungry(data, moves)
     elif confidence(data) > 0:
-        # print("Just like Columbus he get murderous on purpose")
+        taunt = "Just like Columbus he get murderous on purpose"
         return kill(data, moves)
     else:
+        taunt = "I think maybe this is what America was supposed to be like"
         return default(data, moves)
 
 
-def get_groot(data):
+def get_me(data):
     return data["you"]
 
 def make_extra_dangerous_flood_map(data, map):
@@ -75,38 +77,38 @@ def make_extra_dangerous_flood_map(data, map):
         else:
             extra_dangerous_flood_map[snake["body"]["data"][0].get(u'y')][snake["body"]["data"][0].get(u'x')] = 3 #ENEMY
         # # Make flood map see safety where snakes cannot move in the next turn (don't get cut off by another snake)
-    	if snake["body"]["data"][0].get(u'y') + 1 < data["height"] and snake["id"] != data["you"]["id"]:	
-    	    tempY = snake["body"]["data"][0].get(u'y') + 1
+        if snake["body"]["data"][0].get(u'y') + 1 < data["height"] and snake["id"] != data["you"]["id"]:    
+            tempY = snake["body"]["data"][0].get(u'y') + 1
             tempX = snake["body"]["data"][0].get(u'x')
             extra_dangerous_flood_map[tempY][tempX] = 1
-    	if (snake["body"]["data"][0].get(u'x') + 1) < data["width"] and snake["id"] != data["you"]["id"]:	
-    	    tempX = snake["body"]["data"][0].get(u'x') + 1	
+        if (snake["body"]["data"][0].get(u'x') + 1) < data["width"] and snake["id"] != data["you"]["id"]:   
+            tempX = snake["body"]["data"][0].get(u'x') + 1  
             tempY = snake["body"]["data"][0].get(u'y')
             extra_dangerous_flood_map[tempY][tempX] = 1
-    	if (snake["body"]["data"][0].get(u'x') - 1) >= 0 and snake["id"] != data["you"]["id"]:	
-    	    tempX = snake["body"]["data"][0].get(u'x') - 1
-            tempY = snake["body"]["data"][0].get(u'y')	
+        if (snake["body"]["data"][0].get(u'x') - 1) >= 0 and snake["id"] != data["you"]["id"]:  
+            tempX = snake["body"]["data"][0].get(u'x') - 1
+            tempY = snake["body"]["data"][0].get(u'y')  
             extra_dangerous_flood_map[tempY][tempX] = 1
-    	if snake["body"]["data"][0].get(u'y') - 1 >= 0 and snake["id"] != data["you"]["id"]:	
-    	    tempY = snake["body"]["data"][0].get(u'y') - 1
+        if snake["body"]["data"][0].get(u'y') - 1 >= 0 and snake["id"] != data["you"]["id"]:    
+            tempY = snake["body"]["data"][0].get(u'y') - 1
             tempX = snake["body"]["data"][0].get(u'x')
             extra_dangerous_flood_map[tempY][tempX] = 1
 
         # now include a second danger spot
-    	if snake["body"]["data"][0].get(u'y') + 2 < data["height"] and snake["id"] != data["you"]["id"]:	
-    	    tempY = snake["body"]["data"][0].get(u'y') + 2
+        if snake["body"]["data"][0].get(u'y') + 2 < data["height"] and snake["id"] != data["you"]["id"]:    
+            tempY = snake["body"]["data"][0].get(u'y') + 2
             tempX = snake["body"]["data"][0].get(u'x')
             extra_dangerous_flood_map[tempY][tempX] = 1
-    	if (snake["body"]["data"][0].get(u'x') + 2) < data["width"] and snake["id"] != data["you"]["id"]:	
-    	    tempX = snake["body"]["data"][0].get(u'x') + 2	
+        if (snake["body"]["data"][0].get(u'x') + 2) < data["width"] and snake["id"] != data["you"]["id"]:   
+            tempX = snake["body"]["data"][0].get(u'x') + 2  
             tempY = snake["body"]["data"][0].get(u'y')
             extra_dangerous_flood_map[tempY][tempX] = 1
-    	if (snake["body"]["data"][0].get(u'x') - 2) >= 0 and snake["id"] != data["you"]["id"]:	
-    	    tempX = snake["body"]["data"][0].get(u'x') - 2
-            tempY = snake["body"]["data"][0].get(u'y')	
+        if (snake["body"]["data"][0].get(u'x') - 2) >= 0 and snake["id"] != data["you"]["id"]:  
+            tempX = snake["body"]["data"][0].get(u'x') - 2
+            tempY = snake["body"]["data"][0].get(u'y')  
             extra_dangerous_flood_map[tempY][tempX] = 1
-    	if snake["body"]["data"][0].get(u'y') - 2 >= 0 and snake["id"] != data["you"]["id"]:	
-    	    tempY = snake["body"]["data"][0].get(u'y') - 2
+        if snake["body"]["data"][0].get(u'y') - 2 >= 0 and snake["id"] != data["you"]["id"]:    
+            tempY = snake["body"]["data"][0].get(u'y') - 2
             tempX = snake["body"]["data"][0].get(u'x')
             extra_dangerous_flood_map[tempY][tempX] = 1
 
@@ -124,22 +126,22 @@ def make_dangerous_flood_map(data, map):
         if snake["id"] == data["you"]["id"]:
             dangerous_flood_map[snake["body"]["data"][0].get(u'y')][snake["body"]["data"][0].get(u'x')] = 2 #ME
         else:
-            dangerous_flood_map[snake["body"]["data"][0].get(u'y')][snake["body"]["data"][0].get(u'x')] = 3 #ENEMY	
+            dangerous_flood_map[snake["body"]["data"][0].get(u'y')][snake["body"]["data"][0].get(u'x')] = 3 #ENEMY  
         # # Make flood map see safety where snakes cannot move in the next turn (don't get cut off by another snake)
-    	if (snake["body"]["data"][0].get(u'y')) + 1 < data["height"] and snake["id"] != data["you"]["id"]:	
+        if (snake["body"]["data"][0].get(u'y')) + 1 < data["height"] and snake["id"] != data["you"]["id"]:  
             tempY = snake["body"]["data"][0].get(u'y') + 1
             tempX = snake["body"]["data"][0].get(u'x')
             dangerous_flood_map[tempY][tempX] = 1
-    	if ((snake["body"]["data"][0].get(u'x')) + 1) < data["width"] and snake["id"] != data["you"]["id"]:	
-    	    tempX = snake["body"]["data"][0].get(u'x') + 1	
+        if ((snake["body"]["data"][0].get(u'x')) + 1) < data["width"] and snake["id"] != data["you"]["id"]: 
+            tempX = snake["body"]["data"][0].get(u'x') + 1  
             tempY = snake["body"]["data"][0].get(u'y')
             dangerous_flood_map[tempY][tempX] = 1
-    	if ((snake["body"]["data"][0].get(u'x')) - 1) >= 0 and snake["id"] != data["you"]["id"]:	
-    	    tempX = snake["body"]["data"][0].get(u'x') - 1	
+        if ((snake["body"]["data"][0].get(u'x')) - 1) >= 0 and snake["id"] != data["you"]["id"]:    
+            tempX = snake["body"]["data"][0].get(u'x') - 1  
             tempY = snake["body"]["data"][0].get(u'y')
             dangerous_flood_map[tempY][tempX] = 1
-    	if (snake["body"]["data"][0].get(u'y')) - 1 >= 0 and snake["id"] != data["you"]["id"]:	
-    	    tempY = snake["body"]["data"][0].get(u'y') - 1
+        if (snake["body"]["data"][0].get(u'y')) - 1 >= 0 and snake["id"] != data["you"]["id"]:  
+            tempY = snake["body"]["data"][0].get(u'y') - 1
             tempX = snake["body"]["data"][0].get(u'x')
             dangerous_flood_map[tempY][tempX] = 1
 
@@ -151,7 +153,7 @@ def make_dangerous_flood_map(data, map):
 def get_possible_moves_from_flood(data):
     map = make_flood_map(data)
     possible_moves = []
-    groot = get_groot(data)
+    groot = get_me(data)
     head = groot["body"]["data"][0]
 
     x = head["x"]
@@ -247,7 +249,7 @@ def get_move_coordinates(head, move):
 def make_flood_map(data):
     wall_coords = []
     map = []
-    groot = get_groot(data)
+    groot = get_me(data)
 
     for y in range(data["height"]):
         row = []
@@ -280,12 +282,8 @@ def default(data, flood_fill_moves):
     
     #Acquire a fear of death
     dangersUp, dangersDown, dangersLeft, dangersRight = fear(data,flood_fill_moves)
-
-    #Shuffle the order in which we go through commands
-    directions = ["up","down","left","right"]
-    random.shuffle(directions)
     
-    for direction in directions:
+    for direction in flood_fill_moves:
         if (moveOK(dangersUp, dangersDown, dangersLeft, dangersRight,direction)):
             return direction
     #if we get here we are already dead
@@ -295,7 +293,7 @@ def kill(data, flood_fill_moves):
 
     #Acquire a fear of death
     dangersUp, dangersDown, dangersLeft, dangersRight = fear(data,flood_fill_moves)
-    groot = get_groot(data)
+    groot = get_me(data)
     map = make_map(data, True)
 
     enemy = snake_eval(map, data, data["snakes"]["data"], groot["body"]["data"][0])
@@ -327,8 +325,7 @@ def kill(data, flood_fill_moves):
 
 
 def fear(data, flood_fill_moves):
-    map = make_map(data, False)
-    groot = get_groot(data)
+    groot = get_me(data)
     head = groot["body"]["data"][0]
 
     x = head["x"]
@@ -387,7 +384,7 @@ def moveOK(dangersUp, dangersDown, dangersLeft, dangersRight, direction):
 
  
 def hungry(data, flood_fill_moves):
-    groot = get_groot(data)
+    groot = get_me(data)
     map = make_map(data, True)
     if not len(data["food"]["data"]):
         return default(data, flood_fill_moves)
@@ -473,7 +470,7 @@ def make_map(data, excludeFood):
 
 
 def confidence(data):
-    lengthMe = len(get_groot(data)["body"]["data"])
+    lengthMe = len(get_me(data)["body"]["data"])
     maxDiff = 0
     for snake in data["snakes"]["data"]:
         if snake["id"] != data["you"]["id"]:
@@ -483,7 +480,7 @@ def confidence(data):
     return maxDiff
 
 def confidenceVS(data, snake):
-    lengthMe = len(get_groot(data)["body"]["data"])
+    lengthMe = len(get_me(data)["body"]["data"])
     lengthThem = len(snake["body"]["data"])
     return lengthMe - lengthThem
 
@@ -674,4 +671,4 @@ class AStar(object):
 # Expose WSGI app (so gunicorn can find it)
 application = bottle.default_app()
 if __name__ == '__main__':
-    bottle.run(application, host=os.getenv('IP', '0.0.0.0'), port=os.getenv('PORT', '8000'))
+    bottle.run(application, host=os.getenv('IP', '0.0.0.0'), port=os.getenv('PORT', '8001'))
