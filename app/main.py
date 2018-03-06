@@ -43,24 +43,26 @@ def move():
 
 
 def get_move(data):
-    groot = get_me(data)
+    me = get_me(data)
     moves = get_possible_moves_from_flood(data)
+    map = make_map(data, True)
 
     #Here would be a good place to use conditionals for our move behaviour
     #Plot out new states
 
     #print(str(confidence(data)) + "\n")
-    tastyDistance = min(data["width"]/3, data["height"]/3)
-    if tastyDistance < 2:
-        tastyDistance = 2
+    tastyDistance = 8
 
-    # print tastyDistance
-    if groot["health"] < 60 or food_eval(map, data["food"]["data"], groot["body"]["data"][0])[0] < tastyDistance:
+    print tastyDistance
+    if me["health"] < 60 or food_eval(map, data["food"]["data"], me["body"]["data"][0])[0] < tastyDistance:
         taunt = "The wine is flowing!"
         return hungry(data, moves)
     elif confidence(data) > 0:
         taunt = "Just like Columbus he get murderous on purpose"
         return kill(data, moves)
+    elif me["health"] < 70:
+        taunt = "The wine is flowing!"
+        return hungry(data, moves)
     else:
         taunt = "I think maybe this is what America was supposed to be like"
         return default(data, moves)
