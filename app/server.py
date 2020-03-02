@@ -1,7 +1,6 @@
 import bottle
 import os
 import json
-import random
 import heapq
 import copy
 import random
@@ -300,7 +299,7 @@ def default(data, flood_fill_moves):
         if (moveOK(dangersUp, dangersDown, dangersLeft, dangersRight,direction)):
             return direction
     #if we get here we are already dead
-    return directions[0]
+    return flood_fill_moves[0]
 
 def kill(data, flood_fill_moves):
 
