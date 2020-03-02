@@ -451,7 +451,7 @@ def food_eval(map, data_food, our_head):
         for food in data_food:
             food_distance.append(get_distance(our_head, food))
         print(food_distance)
-        sorted(food_distance, itemgetter(0))
+        sorted(food_distance, key=itemgetter(0))
         return food_distance[0]
 
 def snake_eval(map, data, data_snakes, our_head):
@@ -461,7 +461,7 @@ def snake_eval(map, data, data_snakes, our_head):
         if snake["id"] != data["you"]["id"]:
             snake_distance.append(get_distance(our_head, snakeHead))
     print(snake_distance)
-    sorted(snake_distance, itemgetter(0))
+    sorted(snake_distance, key=itemgetter(0))
     # print ("snake_distance")
     # print(snake_distance[0])
     return snake_distance[0]
