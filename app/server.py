@@ -613,6 +613,10 @@ class Cell(object):
         return 1
     def __le__(self, other):
         return 1
+    def __key(self):
+        return (self.x, self.y, self.g,self.h,self.f)
+    def __hash__(self):
+        return hash(self.__key())
 
 
 class AStar(object):
