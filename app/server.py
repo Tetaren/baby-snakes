@@ -35,7 +35,7 @@ def start():
     return HTTPResponse(
         status=200,
         headers={"Content-Type": "application/json"},
-        body=json.dumps(response),
+        body=json.dumps(response)
     )
 
 @bottle.post("/move")
@@ -43,8 +43,7 @@ def move():
     data = bottle.request.json
 
     move = get_move(data)
-
-    response = {"move":move, "shout":shout}
+    response = {"move": move, "shout": shout}
     return HTTPResponse(
         status=200,
         headers={"Content-Type": "application/json"},
@@ -89,8 +88,8 @@ def get_move(data):
 
     #print(str(confidence(data)) + "\n")
     tastyDistance = 8
-
-    print(tastyDistance)
+    global shout
+    # print(tastyDistance)
     if me["health"] < 60 or food_eval(map, board["food"], me["body"][0])[0] < tastyDistance:
         shout = "The wine is flowing!"
         return hungry(data, moves)
@@ -450,7 +449,6 @@ def food_eval(map, data_food, our_head):
         food_distance = []
         for food in data_food:
             food_distance.append(get_distance(our_head, food))
-        print(food_distance)
         sorted(food_distance, key=itemgetter(0))
         return food_distance[0]
 
@@ -460,7 +458,6 @@ def snake_eval(map, data, data_snakes, our_head):
         snakeHead = snake["body"][0]
         if snake["id"] != data["you"]["id"]:
             snake_distance.append(get_distance(our_head, snakeHead))
-    print(snake_distance)
     sorted(snake_distance, key=itemgetter(0))
     # print ("snake_distance")
     # print(snake_distance[0])
