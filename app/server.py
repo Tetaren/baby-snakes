@@ -4,7 +4,6 @@ import json
 import heapq
 import copy
 import random
-import logging
 from bottle import HTTPResponse
 
 shout = "I am babysnakes, I am babysnakes, I am the world."
@@ -13,16 +12,6 @@ shout = "I am babysnakes, I am babysnakes, I am the world."
 def index():
     return "Your Battlesnake is alive!"
 
-@bottle.post("/start")
-def start():
-    response = {"color": "#8732a8", "headType": "smile", "tailType": "round-bum"}
-    logging.info("Start!")
-    return HTTPResponse(
-        status=200,
-        headers={"Content-Type": "application/json"},
-        body=json.dumps(response)
-    )
-
 
 @bottle.post("/ping")
 def ping():
@@ -30,6 +19,23 @@ def ping():
     Used by the Battlesnake Engine to make sure your snake is still working.
     """
     return HTTPResponse(status=200)
+
+
+@bottle.post("/start")
+def start():
+    """
+    Called every time a new Battlesnake game starts and your snake is in it.
+    Your response will control how your snake is displayed on the board.
+    """
+    data = bottle.request.json
+    print("START:", json.dumps(data))
+
+    response = {"color": "#8732a8", "headType": "smile", "tailType": "round-bum"}
+    return HTTPResponse(
+        status=200,
+        headers={"Content-Type": "application/json"},
+        body=json.dumps(response),
+    )
 
 @bottle.post("/move")
 def move():
@@ -43,6 +49,32 @@ def move():
         headers={"Content-Type": "application/json"},
         body=json.dumps(response)
     )
+
+@bottle.post("/end")
+def end():
+    """
+    Called every time a game with your snake in it ends.
+    """
+    data = bottle.request.json
+    print("END:", json.dumps(data))
+    return HTTPResponse(status=200)
+
+
+def main():
+    bottle.run(
+        application,
+        host=os.getenv("IP", "0.0.0.0"),
+        port=os.getenv("PORT", "8080"),
+        debug=os.getenv("DEBUG", True),
+    )
+
+
+# Expose WSGI app (so gunicorn can find it)
+application = bottle.default_app()
+
+if __name__ == "__main__":
+    main()
+
 
 
 def get_move(data):
@@ -679,29 +711,3 @@ class AStar(object):
                         self.update_cell(adj_cell, cell)
                         # add adj cell to open list
                         heapq.heappush(self.opened, (adj_cell.f, adj_cell))
-
-
-@bottle.post("/end")
-def end():
-    """
-    Called every time a game with your snake in it ends.
-    """
-    data = bottle.request.json
-    print("END:", json.dumps(data))
-    return HTTPResponse(status=200)
-
-
-def main():
-    bottle.run(
-        application,
-        host=os.getenv("IP", "0.0.0.0"),
-        port=os.getenv("PORT", "8080"),
-        debug=os.getenv("DEBUG", True),
-    )
-
-
-# Expose WSGI app (so gunicorn can find it)
-application = bottle.default_app()
-
-if __name__ == "__main__":
-    main()
