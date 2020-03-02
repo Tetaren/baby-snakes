@@ -81,6 +81,7 @@ def get_move(data):
     me = get_me(data)
     moves = get_possible_moves_from_flood(data)
     map = make_map(data, True)
+    board = data["board"]
 
     #Here would be a good place to use conditionals for our move behaviour
     #Plot out new states
@@ -89,7 +90,7 @@ def get_move(data):
     tastyDistance = 8
 
     print(tastyDistance)
-    if me["health"] < 60 or food_eval(map, data["food"], me["body"][0])[0] < tastyDistance:
+    if me["health"] < 60 or food_eval(map, board["food"], me["body"][0])[0] < tastyDistance:
         shout = "The wine is flowing!"
         return hungry(data, moves)
     elif confidence(data) > 0:
