@@ -108,6 +108,7 @@ def determineTastyDistance(board):
     tastyWidth = board["width"] / 4
     tastyHeight = board["height"] / 4
     tastyDistance = (tastyHeight + tastyWidth) / 2
+    tastyDistance = tastyDistance + 1
     if tastyDistance < 1:
         tastyDistance = 1
     return tastyDistance
