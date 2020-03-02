@@ -601,6 +601,19 @@ class Cell(object):
         self.h = 0
         self.f = 0
 
+    def __eq__(self, other):
+        return 1
+    def __ne__(self, other):
+        return 0
+    def __gt__(self, other):
+        return 0
+    def __lt__(self, other):
+        return 0
+    def __ge__(self, other):
+        return 1
+    def __le__(self, other):
+        return 1
+
 
 class AStar(object):
     def __init__(self):
