@@ -44,6 +44,7 @@ def move():
 
     move = get_move(data)
     response = {"move": move, "shout": shout}
+    print(response)
     return HTTPResponse(
         status=200,
         headers={"Content-Type": "application/json"},
