@@ -6,11 +6,7 @@ import copy
 import random
 from bottle import HTTPResponse
 
-shout = ""
-
-@bottle.route('/static/<path:path>')
-def static(path):
-    return bottle.static_file(path, root='static/')
+shout = "I am babysnakes, I am babysnakes, I am the world."
 
 @bottle.route("/")
 def index():
@@ -18,12 +14,12 @@ def index():
 
 @bottle.post('/start')
 def start():
-    data = bottle.request.json
-    game_id = data['game_id']
+    # data = bottle.request.json
+    # game_id = data['game_id']
 
     head_url = 'https://i.ytimg.com/vi/6l2uKRLmIdQ/hqdefault.jpg'
 
-    response = {'color': '#f4d7f3', 'shout': 'I am Baby Snakes, I am the world.', 'head_url': head_url, 'name': 'BabySnakes', 'head_type' : 'shades', 'tail_type' : 'round-bum'}
+    response = {'color':'#f4d7f3', 'head_type':'shades', 'tail_type':'round-bum'}
     return HTTPResponse(
         status=200,
         headers={"Content-Type": "application/json"},
@@ -44,7 +40,7 @@ def move():
 
     move = get_move(data)
 
-    response = { 'move': move, 'shout': shout }
+    response = {'move':move, 'shout':shout}
     return HTTPResponse(
         status=200,
         headers={"Content-Type": "application/json"},
