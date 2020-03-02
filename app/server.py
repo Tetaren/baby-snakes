@@ -88,7 +88,7 @@ def get_move(data):
     #Plot out new states
 
     #print(str(confidence(data)) + "\n")
-    tastyDistance = 8
+    tastyDistance = determineTastyDistance(board)
     global shout
     # print(tastyDistance)
     if me["health"] < 60 or food_eval(map, board["food"], me["body"][0])[0] < tastyDistance:
@@ -103,6 +103,14 @@ def get_move(data):
     else:
         shout = "I think maybe this is what America was supposed to be like"
         return default(data, moves)
+
+def determineTastyDistance(board):
+    tastyWidth = board["width"] / 4
+    tastyHeight = board["height"] / 4
+    tastyDistance = (tastyHeight + tastyWidth) / 2
+    if tastyDistance < 1:
+        tastyDistance = 1
+    return tastyDistance
 
 
 def get_me(data):
