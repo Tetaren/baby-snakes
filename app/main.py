@@ -1,16 +1,21 @@
 import bottle
 import os
+import json
 import random
 import heapq
 import copy
 import random
+from bottle import HTTPResponse
 
-taunt = ""
+shout = ""
 
 @bottle.route('/static/<path:path>')
 def static(path):
     return bottle.static_file(path, root='static/')
 
+@bottle.route("/")
+def index():
+    return "Your Battlesnake is alive!"
 
 @bottle.post('/start')
 def start():
@@ -19,15 +24,20 @@ def start():
 
     head_url = 'https://i.ytimg.com/vi/6l2uKRLmIdQ/hqdefault.jpg'
 
-    return {
-        'color': '#f4d7f3',
-        'taunt': 'I am Baby Snakes, I am the world.',
-        'head_url': head_url,
-        'name': 'BabySnakes',
-        'head_type' : 'shades',
-        'tail_type' : 'round-bum'
-    }
+    response = {'color': '#f4d7f3', 'shout': 'I am Baby Snakes, I am the world.', 'head_url': head_url, 'name': 'BabySnakes', 'head_type' : 'shades', 'tail_type' : 'round-bum'}
+    return HTTPResponse(
+        status=200,
+        headers={"Content-Type": "application/json"},
+        body=json.dumps(response),
+    )
 
+
+@bottle.post("/ping")
+def ping():
+    """
+    Used by the Battlesnake Engine to make sure your snake is still working.
+    """
+    return HTTPResponse(status=200)
 
 @bottle.post('/move')
 def move():
@@ -35,11 +45,12 @@ def move():
 
     move = get_move(data)
 
-    
-    return {
-        'move': move,
-        'taunt': taunt
-    }
+    response = { 'move': move, 'shout': shout }
+    return HTTPResponse(
+        status=200,
+        headers={"Content-Type": "application/json"},
+        body=json.dumps(response),
+    )
 
 
 def get_move(data):
@@ -53,18 +64,18 @@ def get_move(data):
     #print(str(confidence(data)) + "\n")
     tastyDistance = 8
 
-    print tastyDistance
+    print(tastyDistance)
     if me["health"] < 60 or food_eval(map, data["food"]["data"], me["body"]["data"][0])[0] < tastyDistance:
-        taunt = "The wine is flowing!"
+        shout = "The wine is flowing!"
         return hungry(data, moves)
     elif confidence(data) > 0:
-        taunt = "Just like Columbus he get murderous on purpose"
+        shout = "Just like Columbus he get murderous on purpose"
         return kill(data, moves)
     elif me["health"] < 70:
-        taunt = "The wine is flowing!"
+        shout = "The wine is flowing!"
         return hungry(data, moves)
     else:
-        taunt = "I think maybe this is what America was supposed to be like"
+        shout = "I think maybe this is what America was supposed to be like"
         return default(data, moves)
 
 
@@ -115,14 +126,14 @@ def make_extra_dangerous_flood_map(data, map):
             extra_dangerous_flood_map[tempY][tempX] = 1
 
     # print(extra_dangerous_flood_map)
-    #if data["you"]["name"] == "groot":
+    #if data["you"]["name"] == "babysnakes":
         #print("EXTRA Dangerous Floor Map")
         #print(extra_dangerous_flood_map)
     return extra_dangerous_flood_map;
 
 def make_dangerous_flood_map(data, map):
     dangerous_flood_map = copy.deepcopy(map)
-    # if data["you"]["name"] == "groot":
+    # if data["you"]["name"] == "babysnakes":
     #     print(dangerous_flood_map)
     for snake in data["snakes"]["data"]:
         if snake["id"] == data["you"]["id"]:
@@ -147,7 +158,7 @@ def make_dangerous_flood_map(data, map):
             tempX = snake["body"]["data"][0].get(u'x')
             dangerous_flood_map[tempY][tempX] = 1
 
-    #if data["you"]["name"] == "groot":
+    #if data["you"]["name"] == "babysnakes":
         #print("Dangerous Floor Map")
         #print(dangerous_flood_map)
     return dangerous_flood_map
@@ -155,12 +166,12 @@ def make_dangerous_flood_map(data, map):
 def get_possible_moves_from_flood(data):
     map = make_flood_map(data)
     possible_moves = []
-    groot = get_me(data)
-    head = groot["body"]["data"][0]
+    babysnakes = get_me(data)
+    head = babysnakes["body"]["data"][0]
 
     x = head["x"]
     y = head["y"]
-    # print map
+    # print(map)
 
     if y != 0 and map[y - 1][x] == 0:
         possible_moves.append({"direction": "up", "count": 0})
@@ -200,10 +211,10 @@ def get_possible_moves_from_flood(data):
         if len(filled) > 0:
             move["count"] = len(filled)
 
-    grootLength = len(groot["body"]["data"])
+    babysnakesLength = len(babysnakes["body"]["data"])
     final_moves = []
     for move in possible_moves:
-        dangerousLength = grootLength
+        dangerousLength = babysnakesLength
         if (move["count"] > dangerousLength):
             final_moves.append(move["direction"])
 
@@ -251,7 +262,7 @@ def get_move_coordinates(head, move):
 def make_flood_map(data):
     wall_coords = []
     map = []
-    groot = get_me(data)
+    babysnakes = get_me(data)
 
     for y in range(data["height"]):
         row = []
@@ -264,7 +275,7 @@ def make_flood_map(data):
         for body in snake["body"]["data"][:-1]:
             wall_coords.append(body)
 
-    grootLength = groot["body"]["data"][0].get(u'length')
+    babysnakesLength = babysnakes["body"]["data"][0].get(u'length')
     for snake in data["snakes"]["data"]:
         if snake["id"] != data["you"]["id"]:
             if confidenceVS(data,snake) <= 0:
@@ -295,10 +306,10 @@ def kill(data, flood_fill_moves):
 
     #Acquire a fear of death
     dangersUp, dangersDown, dangersLeft, dangersRight = fear(data,flood_fill_moves)
-    groot = get_me(data)
+    babysnakes = get_me(data)
     map = make_map(data, True)
 
-    enemy = snake_eval(map, data, data["snakes"]["data"], groot["body"]["data"][0])
+    enemy = snake_eval(map, data, data["snakes"]["data"], babysnakes["body"]["data"][0])
     if not len(enemy):
         return default(data, flood_fill_moves)
 
@@ -315,10 +326,10 @@ def kill(data, flood_fill_moves):
     random.shuffle(targets)
 
     for target in targets:
-        if not (target.get('x') == groot["body"]["data"][0].get('x') and target.get('y') == groot["body"]["data"][0].get('y')):
+        if not (target.get('x') == babysnakes["body"]["data"][0].get('x') and target.get('y') == babysnakes["body"]["data"][0].get('y')):
             if not ((target.get('y') < 0) or (target.get('y') >= data["height"]) or (target.get('x') < 0) or (target.get('x') >= data["width"])):
                 # print target
-                move = get_astar_move(groot["body"]["data"][0], target, data)
+                move = get_astar_move(babysnakes["body"]["data"][0], target, data)
                 if moveOK(dangersUp, dangersDown, dangersLeft, dangersRight, move):
                     #print ("On the mission")
                     return move
@@ -327,8 +338,8 @@ def kill(data, flood_fill_moves):
 
 
 def fear(data, flood_fill_moves):
-    groot = get_me(data)
-    head = groot["body"]["data"][0]
+    babysnakes = get_me(data)
+    head = babysnakes["body"]["data"][0]
 
     x = head["x"]
     y = head["y"]
@@ -338,8 +349,8 @@ def fear(data, flood_fill_moves):
     dangersUp = False
     dangersDown = False
 
-    if (len(groot["body"]["data"]) > 1):
-        firstBody = groot["body"]["data"][1]
+    if (len(babysnakes["body"]["data"]) > 1):
+        firstBody = babysnakes["body"]["data"][1]
         xfirstBody = firstBody["x"]
         yfirstBody = firstBody["y"]
         
@@ -386,16 +397,16 @@ def moveOK(dangersUp, dangersDown, dangersLeft, dangersRight, direction):
 
  
 def hungry(data, flood_fill_moves):
-    groot = get_me(data)
+    babysnakes = get_me(data)
     map = make_map(data, True)
     if not len(data["food"]["data"]):
         return default(data, flood_fill_moves)
 
-    food = food_eval(map, data["food"]["data"], groot["body"]["data"][0])
+    food = food_eval(map, data["food"]["data"], babysnakes["body"]["data"][0])
     if not len(food):
         return default(data, flood_fill_moves)
 
-    move = get_astar_move(groot["body"]["data"][0], food[1], data)
+    move = get_astar_move(babysnakes["body"]["data"][0], food[1], data)
 
     if move in flood_fill_moves:
         return move
@@ -418,7 +429,7 @@ def snake_eval(map, data, data_snakes, our_head):
             snake_distance.append(get_distance(our_head, snakeHead))
     sorted(snake_distance)
     # print ("snake_distance")
-    # print snake_distance[0]
+    # print(snake_distance[0])
     return snake_distance[0]
 
 
@@ -488,9 +499,9 @@ def confidenceVS(data, snake):
 
 def get_astar_move(start, goal, data):
     # print("start")
-    # print start
+    # print(start)
     # print("goal")
-    # print goal
+    # print(goal)
     start = (start["x"], start["y"])
     goal = (goal["x"], goal["y"])
     wall_coords     = []
@@ -670,7 +681,27 @@ class AStar(object):
                         heapq.heappush(self.opened, (adj_cell.f, adj_cell))
 
 
+@bottle.post("/end")
+def end():
+    """
+    Called every time a game with your snake in it ends.
+    """
+    data = bottle.request.json
+    print("END:", json.dumps(data))
+    return HTTPResponse(status=200)
+
+
+def main():
+    bottle.run(
+        application,
+        host=os.getenv("IP", "0.0.0.0"),
+        port=os.getenv("PORT", "8080"),
+        debug=os.getenv("DEBUG", True),
+    )
+
+
 # Expose WSGI app (so gunicorn can find it)
 application = bottle.default_app()
-if __name__ == '__main__':
-    bottle.run(application, host=os.getenv('IP', '0.0.0.0'), port=os.getenv('PORT', '8001'))
+
+if __name__ == "__main__":
+    main()
